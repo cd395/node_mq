@@ -3,8 +3,11 @@ const amqp = require("amqplib");
 const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 const uuid = require("uuid");
+const {exec} = require("child_process");
+const { error } = require("console");
+const { stdout, stderr } = require("process");
 
-const queue = "dbQueue";
+
 
 (async () => {
     try {
@@ -24,32 +27,35 @@ const queue = "dbQueue";
             await connection.close();
         })
 
+        const queue = "releaseQueue";
+        const exchange = "releaseExchange";
+        const bundle = process.argv[2];
+        const version = process.argv[3];
+
         await channel.assertQueue(queue, {durable: true});
-        await channel.assertExchange("mainExchange", 'topic', {
+        await channel.assertExchange(exchange, 'fanout', {
             durable:true
         });
-        // await channel.bindQueue(queue, "mainExchange");
-
 
         await channel.consume(queue, async (message) => {   
             if(message.properties.correlationId === correlationId) {
-                console.log(JSON.parse(message.content))
-          
+                // console.log((message.content + ""));                
             }
             await channel.close();
             await connection.close();
  
         }, {noAck: true})
+        
 
-
-        await channel.sendToQueue("dbQueue",
-        Buffer.from(JSON.stringify({type: "login", properties: {username: "it490", password: "root"}})), {
+       
+        await channel.sendToQueue(queue,
+        Buffer.from(JSON.stringify({type: "create", properties: {bundle: bundle, version: version, status:"active"}})), {
             correlationId: correlationId,
             replyTo: queue,         
         });
       
     }catch(err) {   
-        console.warn(err);
+        console.error(err);
     }
 
 })()
