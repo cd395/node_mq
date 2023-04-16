@@ -3,9 +3,6 @@ const amqp = require("amqplib");
 const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 const uuid = require("uuid");
-const {exec} = require("child_process");
-const { error } = require("console");
-const { stdout, stderr } = require("process");
 
 
 
@@ -31,28 +28,32 @@ const { stdout, stderr } = require("process");
         const exchange = "releaseExchange";
         const bundle = process.argv[2];
         const version = process.argv[3];
+        const cluster = process.argv[4];
 
         await channel.assertQueue(queue, {durable: true});
-        await channel.assertExchange(exchange, 'fanout', {
+        await channel.assertExchange(exchange, 'topic', {
             durable:true
         });
 
         await channel.consume(queue, async (message) => {   
             if(message.properties.correlationId === correlationId) {
-                // console.log((message.content + ""));                
+                console.log((message.content + ""));                
             }
             await channel.close();
             await connection.close();
  
         }, {noAck: true})
         
-
+        await channel.publish(exchange, "release.create", Buffer.from(JSON.stringify({type: "create", properties: {bundle: bundle, version: version, cluster:cluster, status:"inactive"}}))
+        );
        
-        await channel.sendToQueue(queue,
-        Buffer.from(JSON.stringify({type: "create", properties: {bundle: bundle, version: version, status:"active"}})), {
-            correlationId: correlationId,
-            replyTo: queue,         
-        });
+        // await channel.sendToQueue(queue,
+        // Buffer.from(JSON.stringify({type: "create", properties: {bundle: bundle, version: version, status:"inactive"}})), {
+        //     correlationId: correlationId,
+        //     replyTo: queue,         
+        // });
+        await channel.close();
+            await connection.close();
       
     }catch(err) {   
         console.error(err);
