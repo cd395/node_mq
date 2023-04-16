@@ -54,7 +54,7 @@ async function queryDb({ properties, type }) {
 
         });
         const channel = await connection.createChannel();
-        const queue = "releaseQueue";
+        const queue = "releaseQueue-"+bundle+"-"+cluster;
         const exchange = "releaseExchange";
         process.once('SIGINT', async () => {
             await channel.close();
@@ -84,7 +84,7 @@ async function queryDb({ properties, type }) {
         }, { noAck: true });
 
         const message = { cluster, version };
-        await channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), { correlationId: correlationId, replyTo: queue })
+        await channel.publish(exchange,routingKey, Buffer.from(JSON.stringify(message)), { correlationId: correlationId, replyTo: queue })
     } catch (err) {
         console.warn(err);
     }
