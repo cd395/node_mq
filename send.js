@@ -44,14 +44,13 @@ const uuid = require("uuid");
  
         }, {noAck: true})
         
-        await channel.publish(exchange, "release.create", Buffer.from(JSON.stringify({type: "create", properties: {bundle: bundle, version: version, cluster:cluster, status:"inactive"}}))
-        );
+        // await channel.publish(exchange, "release.create", Buffer.from(JSON.stringify({type: "create", properties: {bundle: bundle, version: version, cluster:cluster, status:"inactive"}}))
+        // );
        
-        // await channel.sendToQueue(queue,
-        // Buffer.from(JSON.stringify({type: "create", properties: {bundle: bundle, version: version, status:"inactive"}})), {
-        //     correlationId: correlationId,
-        //     replyTo: queue,         
-        // });
+        await channel.sendToQueue(queue,
+            Buffer.from(JSON.stringify({type: "qa", properties: {bundle: bundle, version: version, cluster:cluster, status:"inactive"}})), {
+            correlationId: correlationId,
+        });
         await channel.close();
             await connection.close();
       
