@@ -22,6 +22,7 @@ async function queryDb({ properties, type })
     const poolPromise = connection.promise();
     if (type === "create")
     {
+        const _ = await poolPromise.query("UPDATE releases SET status='inactive' WHERE bundle=? AND cluster=?", [properties.bundle, properties.cluster]);
         const [rows, fields] = await poolPromise.query("INSERT INTO releases (bundle, version, status, cluster) VALUES (?, ?, ?,?)", [properties.bundle, properties.version, properties.status, properties.cluster]);
         console.log(rows);
         return rows;
