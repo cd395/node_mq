@@ -24,9 +24,9 @@ dotenv.config({ path: "./.env" });
             await connection.close();
         });
 
-        const queue = "releaseQueue";
+        const queue = "releaseQueue-fe-qa";
         const exchange = "releaseExchange";
-        const routingKey = "fe.prod";
+        const routingKey = "fe.qa";
 
         await channel.prefetch(1);
 
@@ -36,8 +36,11 @@ dotenv.config({ path: "./.env" });
         await channel.bindQueue(queue, exchange, routingKey);
 
         await channel.consume(queue, async (message) => {
+            console.log(message.content + "");
             const props = JSON.parse(message.content + "");
-            const command = "/home/fe-prod/getRelease.sh " + props.version;
+            //console.log(props);
+            const command = `/home/fe-qa/getRelease.sh frontend ${props.version}`;
+            console.log(command);
             exec(command, (error, stdout, stderr) => {
                 if (error) {
                     console.error(error)
@@ -47,8 +50,8 @@ dotenv.config({ path: "./.env" });
                 console.log(stderr);
             });
 
-            const response = { cluster: props.cluster, version: props.version, bundle: "frontend" };
-            channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(response)), { correlationId: message.properties.correlationId });
+            //  const response = { cluster: props.cluster, version: props.version, bundle: "frontend" };
+            // channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(response)), { correlationId: message.properties.correlationId });
             await channel.ack(message);
         });
 
