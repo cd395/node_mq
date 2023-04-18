@@ -61,11 +61,11 @@ async function queryDb({ properties, type }) {
 (async () => {
     try {
         const connection = await amqp.connect({
-            hostname: process.env.RABBIT_HOST_NAME,
-            port: process.env.RABBIT_PORT,
-            username: process.env.RABBIT_USERNAME,
-            password: process.env.RABBIT_PASSWORD,
-            vhost: process.env.RABBIT_VHOST,
+       hostname: "10.147.18.10",
+            port: "5672",
+            username: "test",
+            password: "test",
+            vhost: "testHost",
 
         });
         const channel = await connection.createChannel();
