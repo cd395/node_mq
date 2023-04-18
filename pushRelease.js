@@ -36,11 +36,10 @@ async function queryDb({ properties, type }) {
     console.log("type " + type);
     const mysql = require("mysql2");
     const connection = mysql.createPool({
-   hostname: "10.147.18.10",
-            port: "5672",
-            username: "test",
-            password: "test",
-            vhost: "testHost",
+           host: process.env.DB_HOST,
+           user: process.env.DB_USER,
+           password:process.env.DB_PASSWORD,
+           database:process.env.DB_DATABASE
     });
     const poolPromise = connection.promise();
     console.log(type === "push");
