@@ -24,9 +24,9 @@ dotenv.config({ path: "./.env" });
             await connection.close();
         });
 
-        const queue = "releaseQueue-dmz-qa";
+        const queue = "releaseQueue-rabbit-qa";
         const exchange = "releaseExchange";
-        const routingKey = "dmz.qa";
+        const routingKey = "rabbit.qa";
 
         await channel.prefetch(1);
 
@@ -39,7 +39,7 @@ dotenv.config({ path: "./.env" });
             console.log(message.content + "");
             const props = JSON.parse(message.content + "");
             //console.log(props);
-            const command = `/home/dmz-qa/getRelease.sh frontend ${props.version}`;
+            const command = `/home/dmz-qa/getRelease.sh rabbit ${props.version}`;
             console.log(command);
             exec(command, (error, stdout, stderr) => {
                 if (error) {
