@@ -17,6 +17,20 @@ console.log(version);
 if (!cluster) { return "cluster argument is required (e.g. prod/qa)" };
 if (!version) { return "version argument is required (e.g. 1.0.0)" };
 
+function getBundlePrefix(bundleName)
+{
+
+    switch (bundleName.toLowerCase())
+    {
+        case "frontend":
+            return "fe";
+        case "backend":
+            return "be";
+        default:
+            return bundleName.toLowerCase();
+    }
+}
+
 async function queryDb({ properties, type }) {
     console.log("props: " + JSON.stringify(properties));
     console.log("type " + type);
@@ -54,7 +68,8 @@ async function queryDb({ properties, type }) {
 
         });
         const channel = await connection.createChannel();
-        const queue = "releaseQueue-"+bundle+"-"+cluster;
+        const bundleName = getBundlePrefix(bundle);
+        const queue = `releaseQueue-${bundleName}-${cluster}`;
         const exchange = "releaseExchange";
         process.once('SIGINT', async () => {
             await channel.close();
